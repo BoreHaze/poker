@@ -29,12 +29,18 @@ class Card
 
 
 
+
+
   attr_reader :rank, :suit
 
   def initialize(rank, suit)
     raise FakeCardError unless (CARD_RANKS.keys.include?(rank) && CARD_SUITS.keys.include?(suit))
     @rank = rank
     @suit = suit
+  end
+
+  def get_order
+    CARD_RANKS.keys.index(rank)
   end
 
 end
