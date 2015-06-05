@@ -1,6 +1,8 @@
+require_relative "deck"
+
 class Player
 
-  attr_reader :bankroll
+  attr_accessor :bankroll
   attr_accessor :hand
 
   def initialize(bankroll)
