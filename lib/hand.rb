@@ -6,6 +6,18 @@ end
 
 class Hand
 
+  HAND_RANKS = {
+    :straight_flush => "Straight Flush",
+    :quads          => "Four of a Kind",
+    :full_house     => "Full House",
+    :flush          => "Flush",
+    :straight       => "Straight",
+    :trips          => "Three of a Kind",
+    :two_pair       => "Two Pair",
+    :pair           => "Pair",
+    :high_card      => "High Card"
+  }
+
   HAND_SIZE = 5
 
   attr_reader :cards
@@ -42,5 +54,52 @@ class Hand
   end
 
 
+  def pair?(rank)
+    @cards.map{|c| c.rank}.count(rank) == 2
+  end
+
+  def trips?(rank)
+    @cards.map{|c| c.rank}.count(rank) == 3
+  end
+
+  def quads?(rank)
+    cards.map{|c| c.rank}.count(rank) == 4
+  end
+
+  def rank_paired_hands
+    num_pairs = 0
+    num_trips = 0
+    Card::CARD_RANKS.each_key do |rank|
+      return :quads if quads?(rank)
+      num_trips += 1 if trips?(rank)
+      num_pairs += 1 if pair?(rank)
+    end
+
+    if num_trips > 0 && num_pairs > 0
+      return :full_house
+    elsif num_trips > 0
+      return :trips
+    elsif num_pairs == 2
+      return :two_pair
+    elsif num_pairs == 1
+      return :pair
+    else
+      return :high_card
+    end
+  end
+
+  def rank_connected_hands
+    return :straight_flush if straight_flush?
+    return :flush if flush?
+    return :straight if straight?
+    nil
+  end
+
+  def rank_hands
+    hand_rank = rank_connected_hands
+    hand_rank = rank_paired_hands if hand_rank.nil?
+
+    hand_rank
+  end
 
 end

@@ -1,8 +1,6 @@
 require 'hand'
 
 describe Hand do
-  let(:deck) { Deck.new }
-  let(:hand) { Hand.new(deck.deal(5)) }
 
   let(:junk) {Hand.new([
     Card.new(:four, :hearts),
@@ -12,11 +10,11 @@ describe Hand do
     Card.new(:seven, :diamonds)])}
 
   it "Initializes with cards" do
-    expect(hand.cards).not_to be(nil)
+    expect(junk.cards).not_to be(nil)
   end
 
   it "Must start with 5 cards" do
-    expect{ Hand.new(deck.deal(4)) }.to raise_error(BadDealError)
+    expect{ Hand.new([Card.new(:three, :hearts)]) }.to raise_error(BadDealError)
   end
 
   let(:straight) {Hand.new([
@@ -32,11 +30,11 @@ describe Hand do
   end
 
   it "Identifies a straight" do
-    expect(straight.straight?).to be(true)
+    expect(straight).to be_straight
   end
 
   it "Doesn't mistake junk for a straight" do
-    expect(junk.straight?).to be(false)
+    expect(junk).not_to be_straight
   end
 
   let(:flush) {Hand.new([
@@ -67,6 +65,66 @@ describe Hand do
 
   it "Doesn't mistake junk for a straight flush" do
     expect(junk.straight_flush?).to be(false)
+  end
+
+  let(:pair) {Hand.new([
+    Card.new(:five, :hearts),
+    Card.new(:five, :spades),
+    Card.new(:jack, :clubs),
+    Card.new(:six, :spades),
+    Card.new(:seven, :diamonds)])}
+
+
+  it "ranks a pair" do
+    expect(pair.rank_hands).to eq(:pair)
+  end
+
+  let(:trips) {Hand.new([
+    Card.new(:five, :hearts),
+    Card.new(:five, :spades),
+    Card.new(:jack, :clubs),
+    Card.new(:five, :clubs),
+    Card.new(:seven, :diamonds)])}
+
+  it "ranks three of a kind" do
+    expect(trips.rank_hands).to eq(:trips)
+  end
+
+  let(:quads) {Hand.new([
+    Card.new(:five, :hearts),
+    Card.new(:five, :spades),
+    Card.new(:five, :diamonds),
+    Card.new(:five, :clubs),
+    Card.new(:seven, :diamonds)])}
+
+  it "ranks four of a kind" do
+    expect(quads.rank_hands).to eq(:quads)
+  end
+
+  let(:boat) {Hand.new([
+    Card.new(:five, :hearts),
+    Card.new(:five, :spades),
+    Card.new(:five, :diamonds),
+    Card.new(:seven, :clubs),
+    Card.new(:seven, :diamonds)])}
+
+  it "ranks a full house" do
+    expect(boat.rank_hands).to eq(:full_house)
+  end
+
+  let(:two_pair) {Hand.new([
+    Card.new(:five, :hearts),
+    Card.new(:five, :spades),
+    Card.new(:six, :diamonds),
+    Card.new(:seven, :clubs),
+    Card.new(:seven, :diamonds)])}
+
+  it "ranks two pair" do
+    expect(two_pair.rank_hands).to eq(:two_pair)
+  end
+
+  it "ranks junk as high card" do
+    expect(junk.rank_hands).to eq(:high_card)
   end
 
 end

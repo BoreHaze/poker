@@ -12,8 +12,12 @@ describe Card do
     expect(card.suit).not_to be(nil)
   end
 
-  it "Should not initialize with nonxistant ranks or suits" do
-    expect {Card.new(:joker, :cups) }.to raise_error(FakeCardError)
+  it "Should not initialize with nonexistant ranks" do
+    expect {Card.new(:joker, :hearts) }.to raise_error(FakeCardError)
+  end
+
+  it "Should not initialize with nonxxistant suits" do
+    expect {Card.new(:king, :cups) }.to raise_error(FakeCardError)
   end
 
 
