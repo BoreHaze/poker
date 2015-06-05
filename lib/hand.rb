@@ -102,4 +102,12 @@ class Hand
     hand_rank
   end
 
+  def beats?(other_hand)
+    hand_order(rank_hands) < hand_order(other_hand.rank_hands)
+  end
+
+  def hand_order(rank)
+    HAND_RANKS.keys.index(rank)
+  end
+
 end

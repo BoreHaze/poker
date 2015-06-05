@@ -127,4 +127,12 @@ describe Hand do
     expect(junk.rank_hands).to eq(:high_card)
   end
 
+  it "Compares hands correctly" do
+    expect(junk.beats?(pair)).to be(false)
+    expect(trips.beats?(pair)).to be(true)
+    expect(straight_flush.beats?(quads)).to be(true)
+    expect(straight.beats?(flush)).to be(false)
+  end
+
+
 end
