@@ -59,11 +59,18 @@ describe Game do
 
     context "#play_hand" do
 
+      before do
+        game.activate_players
+        game.setup_hand
+      end
+
       describe "#betting_round" do
 
         it "Keeps looping until #betting_over?"
 
         it "Asks players for correct action"
+
+
 
       end
 

@@ -86,6 +86,33 @@ class Game
     nil
   end
 
+  def process_cb(action)
+    if action.nil?
+      return
+    else
+      @current_bet = action
+      @pot += action
+      @last_betraiser = @current_player
+    end
+
+    nil
+  end
+
+  def process_crf(action)
+    if action.nil?
+      @active_players[@current_player] = false
+      return
+    elsif action > @current_bet
+      @current_bet = action
+      @pot += action
+      @last_betraiser = @current_player
+    else
+      @pot += action
+    end
+    
+    nil
+  end
+
   def betting_over?
     next_player = next_to_act
 

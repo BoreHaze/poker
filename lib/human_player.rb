@@ -6,7 +6,7 @@ class HumanPlayer < Player
     nil
   end
 
-  def call_raise_or_fold
+  def call_raise_or_fold(current_bet)
     nil
   end
 end
