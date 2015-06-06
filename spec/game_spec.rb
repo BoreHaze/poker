@@ -13,6 +13,7 @@ describe Game do
 
   context "#play" do
 
+
     context "#activate_players" do
 
       it "creates active player hash" do
@@ -25,12 +26,7 @@ describe Game do
 
     context "#setup_hand" do
 
-      describe "#rotate_button" do
-
-        it "sets button to next active player"
-        it "skips players who are no longer in game"
-
-      end
+      before {game.activate_players}
 
       it "deals five card hands to each player" do
         expect(game.players[0].hand).to be(nil)
@@ -45,9 +41,18 @@ describe Game do
         expect(game.players[0].bankroll).not_to eq(500)
       end
 
-      it "puts the ante into the pot"
+      it "puts the ante into the pot" do
+        expect(game.pot).to eq(0)
+        game.setup_hand
+        expect(game.pot).to eq(game.ante * game.players.count)
+      end
 
-      it "rotates the button"
+      it "rotates the button" do
+        prior_btn_index = game.players.index(game.button_player)
+        game.setup_hand
+        new_btn_index = game.players.index(game.button_player)
+        expect(new_btn_index).to eq((prior_btn_index + 1) % game.players.count)
+      end
 
 
     end

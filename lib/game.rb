@@ -3,59 +3,105 @@ require_relative "deck"
 
 class Game
 
-  attr_reader :players, :activate_players, :deck, :ante
+  attr_reader :players, :active_players, :button_player, :deck, :ante
   attr_accessor :pot
 
   def initialize(num_players, bankroll = 500)
     @players = []
+
     num_players.times { @players << Player.new(bankroll) }
 
     @players << Player.new(bankroll) #human player
 
-    @button_player = @players.sample
     @deck = Deck.new.shuffle
     @ante = 2
+    @pot = 0
+    @hand_count = 0
   end
 
   def play
-
     activate_players
-
     until game_over? do
       setup_hand
       play_hand
       cleanup_hand
+      @hand_count += 1
     end
   end
 
   def activate_players
-    @active_players = {@current_player => true}
-    current_idx = @players.index(@current_player)
-    @players.count.times - 1 do
+    @button_player = @players.sample
+
+
+    @active_players = {@button_player => true}
+    current_idx = @players.index(@button_player)
+    (@players.count - 1).times do
       current_idx += 1
       current_idx %= @players.count
       @active_players[@players[current_idx]] = true
     end
 
+    @current_player = rotate(@button_player)
     nil
   end
 
   def setup_hand
-
-    rotate_button
-
-    @players.each do |player|
-      player.get_hand(deck)
-      player.bankroll -= ante
-      @pot += ante
+    rotate_button #unless @hand_count == 0
+    @active_players.each do |player, status|
+      if status
+        player.get_hand(deck)
+        player.bankroll -= @ante
+        @pot += @ante
+      end
     end
+
+    nil
+  end
+
+  def play_hand
+    betting_round
+    make_exchanges
+    betting_round
+    showdown
+  end
+
+  def betting_round
+    @current_bet = 0
+    @last_betraiser = nil
+    @first_to_act = @current_player
+
+    while betting_continues?
+
+    end
+
+  end
+
+  def betting_continues?
+    next_player = next_to_act
+    ((@current_bet == 0) && (next_player == @first_to_act)) ||
+    (@last_betraiser == next_player)
+  end
+
+  def next_to_act
+    @current_player = rotate(@current_player)
   end
 
   def rotate_button
-
+    @button_player = rotate(@button_player)
+    nil
   end
 
-  def over?
+  def rotate(player)
+    current_idx = @players.index(player)
+    next_idx = (current_idx + 1) % @players.count
+    while @active_players[@players[next_idx]] == false
+      next_idx = (current_idx + 1) % @players.count
+    end
+
+    @players[next_idx]
+  end
+
+  def game_over?
 
   end
 end

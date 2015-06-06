@@ -2,8 +2,7 @@ require_relative "deck"
 
 class Player
 
-  attr_accessor :bankroll
-  attr_accessor :hand
+  attr_accessor :bankroll, :hand
 
   def initialize(bankroll)
     @bankroll = bankroll
