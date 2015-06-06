@@ -3,15 +3,14 @@ require_relative "deck"
 
 class Game
 
-  attr_reader :players, :active_players, :button_player, :deck, :ante
-  attr_accessor :pot
+  attr_reader :players, :active_players, :button_player, :deck, :ante, :pot
 
   def initialize(num_players, bankroll = 500)
     @players = []
 
-    num_players.times { @players << Player.new(bankroll) }
+    num_players.times { @players << ComputerPlayer.new(bankroll) }
 
-    @players << Player.new(bankroll) #human player
+    @players << HumanPlayer.new(bankroll)
 
     @deck = Deck.new.shuffle
     @ante = 2
@@ -41,11 +40,11 @@ class Game
       @active_players[@players[current_idx]] = true
     end
 
-    @current_player = rotate(@button_player)
     nil
   end
 
   def setup_hand
+    @deck.shuffle
     rotate_button #unless @hand_count == 0
     @active_players.each do |player, status|
       if status
@@ -68,22 +67,34 @@ class Game
   def betting_round
     @current_bet = 0
     @last_betraiser = nil
+    @current_player = rotate(@button_player)
     @first_to_act = @current_player
 
-    while betting_continues?
+    loop
+      if @current_bet == 0
+        action = @current_player.check_or_bet
+        process_cb(action)
+      else
+        action = @current_player.call_raise_or_fold
+        process_crf(action)
+      end
 
+      break if betting_over?
+      @current_player = next_to_act
     end
 
+    nil
   end
 
-  def betting_continues?
+  def betting_over?
     next_player = next_to_act
+
     ((@current_bet == 0) && (next_player == @first_to_act)) ||
     (@last_betraiser == next_player)
   end
 
   def next_to_act
-    @current_player = rotate(@current_player)
+    rotate(@current_player)
   end
 
   def rotate_button

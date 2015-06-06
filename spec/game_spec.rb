@@ -59,6 +59,14 @@ describe Game do
 
     context "#play_hand" do
 
+      describe "#betting_round" do
+
+        it "Keeps looping until #betting_over?"
+
+        it "Asks players for correct action"
+
+      end
+
 
 
     end

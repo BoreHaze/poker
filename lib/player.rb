@@ -15,10 +15,18 @@ class Player
   def exchange_cards(discards, deck)
 
     discards.each do |dc|
-      #deck.return(@hand[dc])
+      deck.return(@hand[dc])
       @hand[dc] = deck.deal(1).first
     end
 
+  end
+
+  def check_or_bet
+    raise NotImplementedError
+  end
+
+  def call_raise_or_fold
+    raise NotImplementedError
   end
 
 
