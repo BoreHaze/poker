@@ -8,9 +8,11 @@ class Game
   def initialize(num_players, bankroll = 500)
     @players = []
 
-    num_players.times { @players << ComputerPlayer.new(bankroll) }
+    the_crew["Charlie", "Dennis", "Mac", "Dee", "Frank"]
 
-    @players << HumanPlayer.new(bankroll)
+    num_players.times { |i| @players << ComputerPlayer.new(the_crew[i], bankroll) }
+
+    @players << HumanPlayer.new("The hero", bankroll)
 
     @deck = Deck.new.shuffle
     @ante = 2
@@ -43,14 +45,14 @@ class Game
 
   def setup_hand
     @deck.shuffle
-    rotate_button #unless @hand_count == 0
+    rotate_button unless @hand_count == 0
 
     @players_in_hand = []
     @active_players.each do |player, status|
       if status
         @players_in_hand << player
         player.get_hand(deck)
-        player.bankroll -= @ante
+        player.pay(@ante)
         @pot += @ante
       end
     end
@@ -70,14 +72,13 @@ class Game
     loop
       if @current_bet == 0
         action = @current_player.check_or_bet
-        report_action(action)
         process_cb(action)
       else
         action = @current_player.call_raise_or_fold(@current_bet, @round_accounts[@current_player])
-        report_action(action)
         process_crf(action)
       end
 
+      report_action(action)
       break if betting_over?
       @current_player = next_to_act
     end
@@ -106,6 +107,7 @@ class Game
       return
     else
       @current_bet = action
+      @player.pay(action)
       @pot += action
       @last_betraiser = @current_player
       @round_accounts[@current_player] += action
@@ -118,22 +120,34 @@ class Game
     if action.nil?
       @players_in_hand.delete(@current_player)
       return
-    elsif action > [@current_bet - @round_accounts[@current_player]]
-      @current_bet = action
+    elsif action > @current_bet - @round_accounts[@current_player]
+      @current_bet += action + @round_accounts[@current_player]
+      @player.pay(action)
       @pot += action
       @last_betraiser = @current_player
+      @round_accounts[@current_player] += action
     else
+      @player.pay(action)
       @pot += action
+      @round_accounts[@current_player] += action
     end
 
     nil
   end
 
   def report_action(action)
-    
+    if action.nil? && @current_bet == 0
+      puts "#{@current_player.name} checks"
+    elsif action.nil?
+      puts "#{@current_player.name} folds"
+    elsif @current_player != @last_betraiser
+      puts "#{@current_player.name} calls #{@current_bet}"
+    else
+      puts "#{@current_player} raises to #{@current_bet}"
   end
 
   def report_betting_round
+    puts "The current round of betting is over, there are #{@pot} chips in the pot"
   end
 
   def betting_over?
@@ -163,6 +177,6 @@ class Game
   end
 
   def game_over?
-
+    @active_players.each_value.map{|v| v }.count == 1
   end
 end

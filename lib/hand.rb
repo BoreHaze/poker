@@ -110,4 +110,11 @@ class Hand
     HAND_RANKS.keys.index(rank)
   end
 
+  def display
+    sort
+    cards.each { |c| c.display }
+  end
+
+
+
 end

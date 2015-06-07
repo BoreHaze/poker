@@ -2,9 +2,10 @@ require_relative "deck"
 
 class Player
 
-  attr_accessor :bankroll, :hand
+  attr_accessor :name, :bankroll, :hand
 
-  def initialize(bankroll)
+  def initialize(name, bankroll)
+    @name = name
     @bankroll = bankroll
   end
 
@@ -19,6 +20,10 @@ class Player
       @hand[dc] = deck.deal(1).first
     end
 
+  end
+
+  def pay(amnt)
+    @bankroll -= amnt
   end
 
   def check_or_bet

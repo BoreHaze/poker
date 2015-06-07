@@ -5,7 +5,7 @@ class Card
 
   CARD_SUITS = {
     :hearts   => "Hearts",
-    :spades    => "Spades",
+    :spades   => "Spades",
     :diamonds => "Diamonds",
     :clubs    => "Clubs"
   }
@@ -41,6 +41,10 @@ class Card
 
   def get_order
     CARD_RANKS.keys.index(rank)
+  end
+
+  def display
+    puts "#{CARD_RANKS[rank]} of #{CARD_SUITS[suit]}"
   end
 
 end
