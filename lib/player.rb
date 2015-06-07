@@ -1,5 +1,5 @@
-require_relative "deck"
-
+require_relative 'deck'
+require_relative 'hand'
 class Player
 
   attr_accessor :name, :bankroll, :hand
@@ -10,7 +10,7 @@ class Player
   end
 
   def get_hand(deck)
-    @hand = deck.deal(5)
+    @hand = Hand.new(deck.deal(5))
   end
 
   def exchange_cards(discards, deck)

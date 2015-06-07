@@ -16,7 +16,6 @@ class HumanPlayer < Player
 
     begin
       action = parse_bets(gets.chomp)
-      break if action.nil?
     rescue InvalidInputError
       puts "Invalid input, please retry"
       retry
@@ -36,7 +35,7 @@ class HumanPlayer < Player
 
     begin
       action = parse_bets(gets.chomp)
-      break if action.nil?
+      return nil if action.nil?
       raise IllegalBetError if action < current_bet - current_account
     rescue InvalidInputError
       puts "Invalid input, please retry"

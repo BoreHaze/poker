@@ -1,5 +1,5 @@
-require_relative "card"
-require_relative "deck"
+require_relative 'card'
+require_relative 'deck'
 
 class BadDealError < StandardError
 end
@@ -29,6 +29,7 @@ class Hand
 
   def sort
     @cards.sort! {|a, b| a.get_order <=> b.get_order}
+    nil
   end
 
   def flush?

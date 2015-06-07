@@ -1,5 +1,8 @@
-require_relative "player"
-require_relative "deck"
+require_relative 'human_player'
+require_relative 'computer_player'
+require_relative 'deck'
+
+require 'byebug'
 
 class Game
 
@@ -8,7 +11,7 @@ class Game
   def initialize(num_players, bankroll = 500)
     @players = []
 
-    the_crew["Charlie", "Dennis", "Mac", "Dee", "Frank"]
+    the_crew = ["Charlie", "Dennis", "Mac", "Dee", "Frank"]
 
     num_players.times { |i| @players << ComputerPlayer.new(the_crew[i], bankroll) }
 
@@ -62,14 +65,21 @@ class Game
 
   def play_hand
     betting_round
+    return if hand_over?
     make_exchanges
     betting_round
+    return if hand_over?
     showdown
+  end
+
+  def hand_over?
+    @players_in_hand.count == 1
   end
 
   def betting_round
     setup_betting_round
-    loop
+    over = false
+    until over
       if @current_bet == 0
         action = @current_player.check_or_bet
         process_cb(action)
@@ -79,7 +89,7 @@ class Game
       end
 
       report_action(action)
-      break if betting_over?
+      over = betting_over?
       @current_player = next_to_act
     end
 
@@ -107,7 +117,7 @@ class Game
       return
     else
       @current_bet = action
-      @player.pay(action)
+      @current_player.pay(action)
       @pot += action
       @last_betraiser = @current_player
       @round_accounts[@current_player] += action
@@ -122,12 +132,12 @@ class Game
       return
     elsif action > @current_bet - @round_accounts[@current_player]
       @current_bet += action + @round_accounts[@current_player]
-      @player.pay(action)
+      @current_player.pay(action)
       @pot += action
       @last_betraiser = @current_player
       @round_accounts[@current_player] += action
     else
-      @player.pay(action)
+      @current_player.pay(action)
       @pot += action
       @round_accounts[@current_player] += action
     end
@@ -144,6 +154,7 @@ class Game
       puts "#{@current_player.name} calls #{@current_bet}"
     else
       puts "#{@current_player} raises to #{@current_bet}"
+    end
   end
 
   def report_betting_round
@@ -152,9 +163,7 @@ class Game
 
   def betting_over?
     next_player = next_to_act
-
-    ((@current_bet == 0) && (next_player == @first_to_act)) ||
-    (@last_betraiser == next_player)
+    ((@current_bet == 0) && (next_player == @first_to_act)) || (next_player == @last_betraiser)
   end
 
   def next_to_act
