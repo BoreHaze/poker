@@ -48,8 +48,6 @@ class Game
 
   def setup_hand
     @deck.shuffle
-    rotate_button unless @hand_count == 0
-
     @players_in_hand = []
     @active_players.each do |player, status|
       if status
@@ -59,16 +57,24 @@ class Game
         @pot += @ante
       end
     end
-
+    rotate_button unless @hand_count == 0
     nil
   end
 
   def play_hand
     betting_round
-    return if hand_over?
+    if hand_over?
+      puts "The hand is over"
+      puts "#{@players_in_hand[0].name} wins #{@pot} chips"
+      return
+    end
     make_exchanges
     betting_round
-    return if hand_over?
+    if hand_over?
+      puts "The hand is over"
+      puts "#{@players_in_hand[0].name} wins #{@pot} chips"
+      return
+    end
     showdown
   end
 
@@ -93,7 +99,65 @@ class Game
       @current_player = next_to_act
     end
 
-    report_betting_round
+    report_betting_round unless hand_over?
+
+    nil
+  end
+
+  def make_exchanges
+    @players_in_hand.each do |player|
+      discards = player.choose_discards
+      player.exchange_cards(discards, @deck)
+    end
+  end
+
+  def showdown
+
+    winners = []
+    @players_in_hand.each do |player|
+      wins = true
+      puts "#{player.name} reveals a #{Hand::HAND_RANKS[player.hand.rank_hands]}"
+      @players_in_hand.each do |other_player|
+        next if player == other_player
+        if other_player.hand.beats?(player.hand)
+          wins = false
+        end
+      end
+      winners << player if wins
+    end
+
+    @players_in_hand = winners
+
+    if winners.count == 1
+      puts "#{winners[0].name} wins the hand with a #{Hand::HAND_RANKS[winners[0].hand.rank_hands]} "
+    else
+      winner_str = ""
+      winners.each_with_index do |winner, idx|
+        winner_str += winner.name
+        winner_str += ", " unless idx == winners.count - 1
+      end
+      puts "#{winner_str} tie for the hand with a #{Hand::HAND_RANKS[winners[0].hand.rank_hands]}"
+    end
+  end
+
+  def cleanup_hand
+    num_winners = @players_in_hand.count
+    @players_in_hand.each do |player|
+      player.pay(@pot/num_winners)
+    end
+
+    @active_players.each do |player, status|
+      if status
+        @deck.return_cards(player.hand.cards)
+        player.hand = nil
+      end
+
+      if status && player.bankroll == 0
+        @active_players[player] = false
+      end
+    end
+
+    @pot = 0
 
     nil
   end
@@ -153,7 +217,7 @@ class Game
     elsif @current_player != @last_betraiser
       puts "#{@current_player.name} calls #{@current_bet}"
     else
-      puts "#{@current_player} raises to #{@current_bet}"
+      puts "#{@current_player.name} raises to #{@current_bet}"
     end
   end
 
@@ -178,7 +242,7 @@ class Game
   def rotate(player)
     current_idx = @players.index(player)
     next_idx = (current_idx + 1) % @players.count
-    while @active_players[@players[next_idx]] == false
+    while @active_players[@players[next_idx]] == false && @players_in_hand.include(@players[next_idx])
       next_idx = (current_idx + 1) % @players.count
     end
 

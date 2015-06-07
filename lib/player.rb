@@ -16,14 +16,18 @@ class Player
   def exchange_cards(discards, deck)
 
     discards.each do |dc|
-      deck.return(@hand[dc])
-      @hand[dc] = deck.deal(1).first
+      deck.return_cards([@hand.cards[dc]])
+      @hand.cards[dc] = deck.deal(1).first
     end
 
   end
 
   def pay(amnt)
     @bankroll -= amnt
+  end
+
+  def get(amnt)
+    @bankroll += amnt
   end
 
   def check_or_bet
@@ -34,5 +38,8 @@ class Player
     raise NotImplementedError
   end
 
+  def inspect
+    "#{@name}"
+  end
 
 end

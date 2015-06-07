@@ -27,10 +27,6 @@ class Card
 
   }
 
-
-
-
-
   attr_reader :rank, :suit
 
   def initialize(rank, suit)
@@ -44,7 +40,7 @@ class Card
   end
 
   def display
-    puts "#{CARD_RANKS[rank]} of #{CARD_SUITS[suit]}"
+    "#{CARD_RANKS[rank]} of #{CARD_SUITS[suit]}"
   end
 
 end

@@ -10,7 +10,7 @@ class HumanPlayer < Player
 
   def check_or_bet
     puts "Your hand is:"
-    @hand.display
+    puts @hand.display
     puts "Action is on you, would you like to check or bet?"
     puts "(enter 'c' or 'b, <amt>')"
 
@@ -29,7 +29,7 @@ class HumanPlayer < Player
 
   def call_raise_or_fold(current_bet, current_account)
     puts "Your hand is:"
-    @hand.display
+    puts @hand.display
     puts "Action is on you, would you like to fold, call, or raise?"
     puts "(enter 'f' or 'b, <amt>')"
 
@@ -64,7 +64,7 @@ class HumanPlayer < Player
 
   def choose_discards
     puts "Your hand is:"
-    @hand.display
+    puts @hand.display
     puts "Which cards would you like to discard? (maximum 3)"
     puts "(enter card number from top to bottom like '1, 3, 4')"
 
@@ -78,12 +78,12 @@ class HumanPlayer < Player
     discards
   end
 
-  def parse_discards
+  def parse_discards(input)
     discard_arr = input.split(",").map{ |item| item.strip.to_i }
-    raise InvalidInputError unless discard_arr.count.between(0,3)
-    raise InvalidInputError unless discard_arr.all? { |i| i.between(1,5) }
+    raise InvalidInputError unless discard_arr.count.between?(0,3)
+    raise InvalidInputError unless discard_arr.all? { |i| i.between?(1,5) }
     raise InvalidInputError unless discard_arr == discard_arr.uniq
 
-    discard_arr
+    discard_arr.map{ |i| i - 1 }
   end
 end

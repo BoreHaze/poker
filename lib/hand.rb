@@ -20,7 +20,7 @@ class Hand
 
   HAND_SIZE = 5
 
-  attr_reader :cards
+  attr_accessor :cards
 
   def initialize(cards)
     raise BadDealError if cards.count != HAND_SIZE
@@ -112,8 +112,13 @@ class Hand
   end
 
   def display
-    sort
-    cards.each { |c| c.display }
+    hand_str = ""
+    cards.each_with_index do |c, i|
+      hand_str += c.display
+      hand_str += ", " unless (i == 4)
+    end
+
+    hand_str
   end
 
 
