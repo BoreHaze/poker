@@ -30,14 +30,12 @@ class Game
 
   def activate_players
     @button_player = @players.sample
-
-
     @active_players = {@button_player => true}
-    current_idx = @players.index(@button_player)
+
+    next_player = rotate(@button_player)
     (@players.count - 1).times do
-      current_idx += 1
-      current_idx %= @players.count
-      @active_players[@players[current_idx]] = true
+      @active_players[next_player] = true
+      next_player = rotate(next_player)
     end
 
     nil
@@ -46,8 +44,11 @@ class Game
   def setup_hand
     @deck.shuffle
     rotate_button #unless @hand_count == 0
+
+    @players_in_hand = []
     @active_players.each do |player, status|
       if status
+        @players_in_hand << player
         player.get_hand(deck)
         player.bankroll -= @ante
         @pot += @ante
@@ -65,22 +66,36 @@ class Game
   end
 
   def betting_round
-    @current_bet = 0
-    @last_betraiser = nil
-    @current_player = rotate(@button_player)
-    @first_to_act = @current_player
-
+    setup_betting_round
     loop
       if @current_bet == 0
         action = @current_player.check_or_bet
+        report_action(action)
         process_cb(action)
       else
-        action = @current_player.call_raise_or_fold
+        action = @current_player.call_raise_or_fold(@current_bet, @round_accounts[@current_player])
+        report_action(action)
         process_crf(action)
       end
 
       break if betting_over?
       @current_player = next_to_act
+    end
+
+    report_betting_round
+
+    nil
+  end
+
+  def setup_betting_round
+    @current_bet = 0
+    @last_betraiser = nil
+    @current_player = rotate(@button_player)
+    @first_to_act = @current_player
+
+    @round_accounts = {}
+    @players_in_hand.each do |player|
+      @round_accounts[player] = 0
     end
 
     nil
@@ -93,6 +108,7 @@ class Game
       @current_bet = action
       @pot += action
       @last_betraiser = @current_player
+      @round_accounts[@current_player] += action
     end
 
     nil
@@ -100,17 +116,24 @@ class Game
 
   def process_crf(action)
     if action.nil?
-      @active_players[@current_player] = false
+      @players_in_hand.delete(@current_player)
       return
-    elsif action > @current_bet
+    elsif action > [@current_bet - @round_accounts[@current_player]]
       @current_bet = action
       @pot += action
       @last_betraiser = @current_player
     else
       @pot += action
     end
-    
+
     nil
+  end
+
+  def report_action(action)
+    
+  end
+
+  def report_betting_round
   end
 
   def betting_over?
