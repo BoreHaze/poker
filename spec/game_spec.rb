@@ -48,6 +48,7 @@ describe Game do
       end
 
       it "rotates the button" do
+        allow(game).to receive(:hand_count).and_return(1)
         prior_btn_index = game.players.index(game.button_player)
         game.setup_hand
         new_btn_index = game.players.index(game.button_player)
@@ -66,9 +67,15 @@ describe Game do
 
       describe "#betting_round" do
 
-        it "Keeps looping until #betting_over?"
+        it "Keeps looping until #betting_over?" do
+
+
+        end
+
 
         it "Asks players for correct action"
+        
+
 
 
 

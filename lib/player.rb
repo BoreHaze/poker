@@ -13,6 +13,11 @@ class Player
     @hand = Hand.new(deck.deal(5))
   end
 
+  def return_hand(deck)
+    deck.return_cards(hand.cards)
+    @hand = nil
+  end
+
   def exchange_cards(discards, deck)
 
     discards.each do |dc|
@@ -40,6 +45,10 @@ class Player
 
   def inspect
     "#{@name}"
+  end
+
+  def player_hand_rank
+    Hand::HAND_RANKS[hand.rank_hands]
   end
 
 end
